@@ -5,12 +5,11 @@ class UserSerializer(serializers.ModelSerializer):
     followings_full = serializers.SerializerMethodField()
     class Meta:
         model = User
-        fields = ['id', 'username', 'password', 'email', 'followings', 'followings_full', 'register_date', 'age']
+        fields = ['id', 'username', 'password', 'email', 'followings', 'followings_full', 'age', 'role']
 
     def get_followings_full(self, obj):
-        return [{'id': e.id, 'name': e.name, 'genre': e.genre} for e in obj.followings.all() ]
-    
-    
+        return [{'id': e.id, 'name': e.user.username, 'genre': e.genre} for e in obj.followings.all()]
+
 class PlaylistSerializer(serializers.ModelSerializer):
     full_user = serializers.SerializerMethodField()
     
@@ -23,18 +22,13 @@ class PlaylistSerializer(serializers.ModelSerializer):
         
 
 class ArtistSerializer(serializers.ModelSerializer):
-    follower = serializers.SerializerMethodField()
-    music = serializers.SerializerMethodField()
+    user_info = serializers.SerializerMethodField()
     class Meta:
         model = Artist
-        fields = ['id', 'name', 'password','genre', 'description', 'create_date', 'follower', 'music']
+        fields = ['id', 'user', 'user_info', 'genre', 'description']
 
-    def get_follower(self, obj):
-        return [{'id': e.id, 'username': e.username} for e in obj.user_set.all()]
-    
-    def get_music(self, obj):
-        return [{'id': e.id, 'title': e.title, 'album': e.album, 'genre': e.genre} for e in obj.music_set.all()]
-
+    def get_user_info(self, obj):
+        return {'id': obj.user.id, 'username': obj.user.username, 'email': obj.user.email}
 
 class MusicSerializer(serializers.ModelSerializer):
     artist_full = serializers.SerializerMethodField()
