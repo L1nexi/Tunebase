@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Music, User, Playlist, Artist, PlaylistContent
+from .models import Music, User, Playlist, Artist, PlaylistEntry  # 修改引用
 
 class UserSerializer(serializers.ModelSerializer):
     followings_full = serializers.SerializerMethodField()
@@ -80,10 +80,11 @@ class MusicSerializer(serializers.ModelSerializer):
         return [{'id': e.id, 'name': e.user.username} for e in obj.artist.all()]
 
 
-class PlaylistContentSerializer(serializers.ModelSerializer):
+class PlaylistEntrySerializer(serializers.ModelSerializer):  # 修改类名
     music_info = serializers.SerializerMethodField()
+
     class Meta:
-        model = PlaylistContent
+        model = PlaylistEntry  # 修改模型引用
         fields = ['id', 'playlist', 'music', 'add_date', 'music_info']
 
     def get_music_info(self, obj):

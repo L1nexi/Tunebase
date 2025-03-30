@@ -6,7 +6,6 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ('user', 'User'),
         ('artist', 'Artist'),
-        ('admin', 'Admin'),
     ]
     age = models.IntegerField(help_text="Enter an age", default=0)
     followings = models.ManyToManyField('Artist', blank=True, related_name='followers')  # 添加 related_name
@@ -52,7 +51,7 @@ class Music(models.Model):
         return res
     
 
-class PlaylistContent(models.Model):
+class PlaylistEntry(models.Model):  # 修改类名
     # 自动主键作为 ID
     playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
     music = models.ForeignKey(Music, on_delete=models.CASCADE)
