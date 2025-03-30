@@ -3,9 +3,42 @@ from .models import Music, User, Playlist, Artist, PlaylistContent
 
 class UserSerializer(serializers.ModelSerializer):
     followings_full = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['id', 'username', 'password', 'email', 'followings', 'followings_full', 'age', 'role']
+        extra_kwargs = {'password': {'write_only': True}}  # 确保密码仅用于写入
+
+    def create(self, validated_data):
+        # 处理多对多字段 followings
+        followings_data = validated_data.pop('followings', None)
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)
+        if password:
+            instance.set_password(password)
+        instance.save()
+
+        # 设置多对多关系
+        if followings_data:
+            instance.followings.set(followings_data)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        # 更新用户时也确保密码被哈希处理
+        followings_data = validated_data.pop('followings', None)
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+
+        # 更新多对多关系
+        if followings_data:
+            instance.followings.set(followings_data)
+ 
+        return instance
 
     def get_followings_full(self, obj):
         return [{'id': e.id, 'name': e.user.username, 'genre': e.genre} for e in obj.followings.all()]
